@@ -72,8 +72,8 @@ class _DialPainter extends CustomPainter {
     }
 
     // Draw the inner background circle
-    canvas.drawCircle(
-        centerPoint, radius * 0.88, new Paint()..color = Theme.of(context).canvasColor);
+    canvas.drawCircle(centerPoint, radius * 0.88,
+        new Paint()..color = Theme.of(context).canvasColor);
 
     // Get the offset point for an angle value of theta, and a distance of _radius
     Offset getOffsetForTheta(double theta, double _radius) {
@@ -90,10 +90,11 @@ class _DialPainter extends CustomPainter {
     String hours = (multiplier == 0) ? '' : "${multiplier}h ";
     int minutes = (pctTheta * 60).round();
     minutes = minutes == 60 ? 0 : minutes;
+    String minutesStr = minutes > 0 ? "${minutes}m" : "";
     TextPainter textDurationValuePainter = new TextPainter(
         textAlign: TextAlign.center,
         text: new TextSpan(
-            text: '${hours}${minutes > 0 ? minutes : ""}',
+            text: hours + minutesStr,
             style: Theme.of(context)
                 .textTheme
                 .display3
@@ -180,6 +181,7 @@ class _Dial extends StatefulWidget {
 
   /// The resolution of mins of the dial, i.e. if snapToMins = 5.0, only durations of 5min intervals will be selectable.
   final double snapToMins;
+
   @override
   _DialState createState() => new _DialState();
 }
@@ -444,13 +446,17 @@ class _DurationPickerDialog extends StatefulWidget {
   ///
   /// [initialTime] must not be null.
   const _DurationPickerDialog(
-      {Key key, @required this.initialTime, this.snapToMins})
+      {Key key,
+      @required this.initialTime,
+      this.snapToMins,
+      this.boxDecoration})
       : assert(initialTime != null),
         super(key: key);
 
   /// The duration initially selected when the dialog is shown.
   final Duration initialTime;
   final double snapToMins;
+  final BoxDecoration boxDecoration;
 
   @override
   _DurationPickerDialogState createState() => new _DurationPickerDialogState();
@@ -493,6 +499,9 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
     assert(debugCheckHasMediaQuery(context));
     final ThemeData theme = Theme.of(context);
 
+    final BoxDecoration boxDecoration = widget.boxDecoration ??
+        BoxDecoration(color: theme.dialogBackgroundColor);
+
     final Widget picker = new Padding(
         padding: const EdgeInsets.all(16.0),
         child: new AspectRatio(
@@ -515,13 +524,12 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
     final Dialog dialog = new Dialog(child: new OrientationBuilder(
         builder: (BuildContext context, Orientation orientation) {
       final Widget pickerAndActions = new Container(
-        color: theme.dialogBackgroundColor,
+        decoration: boxDecoration,
         child: new Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            new Expanded(
-                child:
-                    picker), // picker grows and shrinks with the available space
+            new Expanded(child: picker),
+            // picker grows and shrinks with the available space
             actions,
           ],
         ),
@@ -587,14 +595,18 @@ class _DurationPickerDialogState extends State<_DurationPickerDialog> {
 Future<Duration> showDurationPicker(
     {@required BuildContext context,
     @required Duration initialTime,
-    double snapToMins}) async {
+    double snapToMins,
+    BoxDecoration decoration}) async {
   assert(context != null);
   assert(initialTime != null);
 
   return await showDialog<Duration>(
     context: context,
-    builder: (BuildContext context) =>
-        new _DurationPickerDialog(initialTime: initialTime, snapToMins: snapToMins),
+    builder: (BuildContext context) => new _DurationPickerDialog(
+      initialTime: initialTime,
+      snapToMins: snapToMins,
+      boxDecoration: decoration,
+    ),
   );
 }
 
