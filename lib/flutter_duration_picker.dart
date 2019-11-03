@@ -90,7 +90,7 @@ class _DialPainter extends CustomPainter {
     String hours = (multiplier == 0) ? '' : "${multiplier}h ";
     int minutes = (pctTheta * 60).round();
     minutes = minutes == 60 ? 0 : minutes;
-    String minutesStr = minutes > 0 ? "${minutes}m" : "";
+    String minutesStr = minutes > 0 ? "${minutes}m" : "0";
     TextPainter textDurationValuePainter = new TextPainter(
         textAlign: TextAlign.center,
         text: new TextSpan(
